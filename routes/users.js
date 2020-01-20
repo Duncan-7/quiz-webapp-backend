@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.js');
-const withAuth = require('../auth');
+const withAuth = require('../middleware/auth');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
