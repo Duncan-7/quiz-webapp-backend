@@ -78,6 +78,19 @@ exports.update = function (req, res) {
     questions: questions
   });
 
+  //make sure results are all present before updating quiz responses
+  answersComplete = true;
+  quizTemplate.questions.forEach(question => {
+    if (question.answerIndex == null) {
+      answersComplete = false;
+    };
+  });
+
+  if (!answersComplete) {
+    quizTemplate.results = false;
+  }
+  console.log(quizTemplate.results)
+
   QuizTemplate.findByIdAndUpdate(req.params.id, quizTemplate, {}, function (err, quizTemplate) {
     if (err) {
       console.log(err);
@@ -86,11 +99,48 @@ exports.update = function (req, res) {
           error: err
         });
     } else {
+      //check whether results are complete, and if so update quiz responses for this template
+      if (quizTemplate.results) {
+        QuizResponse.find({ template: quizTemplate._id }, function (err, responses) {
+          if (err) {
+            res.status(500)
+              .json({
+                error: err
+              });
+          } else {
+            responses.forEach(response => {
+              score = 0;
+              response.answers.forEach((answer, index) => {
+                if (answer == quizTemplate.questions[index].answerIndex) {
+                  score++;
+                }
+              });
+              updatedResponse = new QuizResponse({
+                _id: response._id,
+                answers: response.answers,
+                user: response.user,
+                template: response.template,
+                complete: response.complete,
+                score: score
+              })
+              QuizResponse.findByIdAndUpdate(response._id, updatedResponse, {}, function (err, newResponse) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  console.log(newResponse);
+                }
+              })
+            })
+          }
+        })
+      }
+      //finish update request
       res.json({
         quizTemplate: quizTemplate
       })
     }
   });
+
 }
 
 //delete template

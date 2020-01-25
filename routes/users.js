@@ -21,11 +21,13 @@ router.post('/signup', function (req, res, next) {
   });
   user.save(function (err) {
     if (err) {
-      console.log(err)
+      console.log(err.errmsg)
       res.status(500)
-        .send("Error creating user");
+        .json({
+          error: "Problem creating user. Please try again."
+        })
     } else {
-      returnToken(email, user._id, res);
+      returnToken(email, user._id, user.admin, res);
     }
   });
 });
@@ -59,7 +61,7 @@ router.post('/login', function (req, res) {
             });
         } else {
           // Issue token
-          returnToken(email, user._id, res);
+          returnToken(email, user._id, user.admin, res);
         }
       });
     }
@@ -70,7 +72,7 @@ router.get('/checkToken', withAuth, function (req, res) {
   res.sendStatus(200);
 })
 
-const returnToken = (email, userId, res) => {
+const returnToken = (email, userId, admin, res) => {
   const payload = {
     email: email,
     id: userId
@@ -78,7 +80,12 @@ const returnToken = (email, userId, res) => {
   const token = jwt.sign(payload, process.env.SECRET_KEY, {
     expiresIn: '1h'
   });
-  res.json({ token: token, userId: userId, expiresIn: 3600 })
+  res.json({
+    token: token,
+    userId: userId,
+    expiresIn: 3600,
+    admin: admin
+  })
 }
 
 module.exports = router;

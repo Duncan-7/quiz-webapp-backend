@@ -1,7 +1,7 @@
 const QuizResponse = require('../models/quizResponse');
 const QuizTemplate = require('../models/quizTemplate');
 const User = require('../models/user');
-
+const async = require('async');
 
 //return all user's quizzes
 exports.index = function (req, res) {
@@ -29,19 +29,37 @@ exports.create = function (req, res) {
     user: userId,
     template: templateId,
     answers: answers,
-    incomplete: true,
+    complete: false,
     score: null
   });
-
-  QuizTemplate.findById(templateId, function (err, template) {
+  //check that the template and user for this response submission exists, 
+  //and that the user hasn't already entered this quiz
+  async.parallel({
+    template: function (callback) {
+      QuizTemplate.findById(templateId, callback);
+    },
+    pastResponse: function (callback) {
+      QuizResponse.find({ user: userId, template: templateId }, callback);
+    },
+    user: function (callback) {
+      User.findById(userId, callback);
+    },
+  }, function (err, results) {
+    console.log("test")
+    console.log(results)
     if (err) {
       res.status(500)
         .json({
-          err: "Cannot find quiz template"
+          error: err
+        });
+    } else if (results.pastResponse.length !== 0) {
+      res.status(500)
+        .json({
+          error: "You have already submitted a response for this quiz"
         });
     } else {
-      if (template.questions.length === quizResponse.answers.length) {
-        quizResponse.incomplete = false;
+      if (results.template.questions.length === quizResponse.answers.length) {
+        quizResponse.complete = true;
       };
 
       quizResponse.save(function (err, quizResponse) {
@@ -51,9 +69,48 @@ exports.create = function (req, res) {
               error: err
             });
         } else {
-          res.send("answers saved");
+          res.json({
+            quizResponse: quizResponse
+          });
         }
-      });
+      })
     }
-  });
+  })
+}
+
+//update a response
+exports.update = function (req, res) {
+  QuizResponse.findById(req.params.id)
+    .populate('template')
+    .exec(function (err, quizResponse) {
+      quizResponse.answers = req.body.answers;
+      if (quizResponse.template.questions.length === quizResponse.answers.length) {
+        quizResponse.complete = true;
+      }
+      quizResponse.save(function (err) {
+        if (err) {
+          res.status(500)
+            .json({
+              error: err
+            });
+        } else {
+          res.send("response updated")
+        }
+      })
+    });
+}
+
+//delete template
+exports.destroy = function (req, res) {
+  QuizResponse.findByIdAndRemove(req.params.id, function (err) {
+    if (err) {
+      console.log(err);
+      res.status(500)
+        .json({
+          error: err
+        });
+    } else {
+      res.send("response deleted");
+    }
+  })
 }
