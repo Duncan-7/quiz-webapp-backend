@@ -4,13 +4,11 @@ const User = require('../models/user');
 
 //return all quizzes
 exports.index = function (req, res) {
-  QuizTemplate.find({}, 'title closingDate', function (err, templates) {
+  QuizTemplate.find({}, function (err, templates) {
     if (err) {
-      console.log(err)
       res.status(500)
         .json({ error: "couldn't find records" });
     } else {
-      console.log(templates)
       res.status(200)
         .json({
           quizTemplates: templates
@@ -21,13 +19,11 @@ exports.index = function (req, res) {
 
 //return live quizzes
 exports.liveIndex = function (req, res) {
-  QuizTemplate.find({ live: true }, 'title closingDate', function (err, templates) {
+  QuizTemplate.find({ live: true }, function (err, templates) {
     if (err) {
-      console.log(err)
       res.status(500)
         .json({ error: "couldn't find records" });
     } else {
-      console.log(templates)
       res.status(200)
         .json({
           quizTemplates: templates

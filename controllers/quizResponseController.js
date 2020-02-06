@@ -5,15 +5,17 @@ const async = require('async');
 
 //return all user's quizzes
 exports.index = function (req, res) {
-  QuizResponse.find({}, function (err, responses) {
+  const userId = req.query.id;
+  console.log(userId)
+  QuizResponse.find({ user: userId }, function (err, responses) {
     if (err) {
       res.status(500)
-        .json({ error: "couldn't find reponses" });
+        .json({ error: "Couldn't find reponses" });
     } else {
-      console.log(templates)
+      console.log(responses)
       res.status(200)
         .json({
-          quizResponses: reponses
+          quizResponses: responses
         });
     }
   });
