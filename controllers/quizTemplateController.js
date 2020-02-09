@@ -47,7 +47,6 @@ exports.create = function (req, res) {
 
   quizTemplate.save(function (err, quizTemplate) {
     if (err) {
-      console.log(err);
       res.status(500)
         .json({
           error: err
@@ -87,7 +86,7 @@ exports.update = function (req, res) {
   }
   console.log(quizTemplate.results)
 
-  QuizTemplate.findByIdAndUpdate(req.params.id, quizTemplate, {}, function (err, quizTemplate) {
+  QuizTemplate.findByIdAndUpdate(req.params.id, quizTemplate, {}, function (err, updatedQuizTemplate) {
     if (err) {
       console.log(err);
       res.status(500)
@@ -95,17 +94,21 @@ exports.update = function (req, res) {
           error: err
         });
     } else {
+      console.log("template updated")
       //check whether results are complete, and if so update quiz responses for this template
       if (quizTemplate.results) {
-        QuizResponse.find({ template: quizTemplate._id }, function (err, responses) {
+        console.log("looking for responses")
+        QuizResponse.find({ template: updatedQuizTemplate._id }, function (err, responses) {
           if (err) {
+            console.log(err);
             res.status(500)
               .json({
                 error: err
               });
           } else {
+            console.log(responses)
             responses.forEach(response => {
-              score = 0;
+              let score = 0;
               response.answers.forEach((answer, index) => {
                 if (answer == quizTemplate.questions[index].answerIndex) {
                   score++;
@@ -119,6 +122,7 @@ exports.update = function (req, res) {
                 complete: response.complete,
                 score: score
               })
+              console.log(score)
               QuizResponse.findByIdAndUpdate(response._id, updatedResponse, {}, function (err, newResponse) {
                 if (err) {
                   console.log(err);

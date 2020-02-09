@@ -6,13 +6,11 @@ const async = require('async');
 //return all user's quizzes
 exports.index = function (req, res) {
   const userId = req.query.id;
-  console.log(userId)
   QuizResponse.find({ user: userId }, function (err, responses) {
     if (err) {
       res.status(500)
         .json({ error: "Couldn't find reponses" });
     } else {
-      console.log(responses)
       res.status(200)
         .json({
           quizResponses: responses
@@ -32,7 +30,9 @@ exports.create = function (req, res) {
     template: templateId,
     answers: answers,
     complete: false,
-    score: null
+    score: null,
+    resultsViewed: false,
+    archived: false
   });
   //check that the template and user for this response submission exists, 
   //and that the user hasn't already entered this quiz
@@ -47,8 +47,6 @@ exports.create = function (req, res) {
       User.findById(userId, callback);
     },
   }, function (err, results) {
-    console.log("test")
-    console.log(results)
     if (err) {
       res.status(500)
         .json({
@@ -83,20 +81,24 @@ exports.create = function (req, res) {
 //update a response
 exports.update = function (req, res) {
   QuizResponse.findById(req.params.id)
-    .populate('template')
     .exec(function (err, quizResponse) {
-      quizResponse.answers = req.body.answers;
-      if (quizResponse.template.questions.length === quizResponse.answers.length) {
-        quizResponse.complete = true;
+      //update resultsViewed or archived if present in incoming request
+      if (req.body.resultsViewed !== undefined) {
+        quizResponse.resultsViewed = req.body.resultsViewed;
       }
-      quizResponse.save(function (err) {
+      if (req.body.archived !== undefined) {
+        quizResponse.archived = req.body.archived;
+      }
+      quizResponse.save(function (err, updatedQuizResponse) {
         if (err) {
           res.status(500)
             .json({
               error: err
             });
         } else {
-          res.send("response updated")
+          res.json({
+            quizResponse: updatedQuizResponse
+          });
         }
       })
     });

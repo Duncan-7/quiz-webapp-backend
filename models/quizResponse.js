@@ -7,7 +7,9 @@ const QuizResponseSchema = new Schema(
     template: { type: Schema.Types.ObjectId, ref: 'QuizTemplate', required: true },
     complete: Boolean,
     answers: [Number],
-    score: Number
+    score: Number,
+    resultsViewed: Boolean,
+    archived: Boolean
   }
 )
 
