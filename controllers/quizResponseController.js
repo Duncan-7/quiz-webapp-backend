@@ -82,10 +82,33 @@ exports.create = function (req, res) {
 exports.update = function (req, res) {
   QuizResponse.findById(req.params.id)
     .exec(function (err, quizResponse) {
-      //update resultsViewed or archived if present in incoming request
+      //update resultsViewed if present in incoming request
       if (req.body.resultsViewed !== undefined) {
         quizResponse.resultsViewed = req.body.resultsViewed;
+        //update user balance with any earned coins when results are viewed
+        User.findById(quizResponse.user)
+          .exec(function (err, user) {
+            if (err) {
+              res.status(500)
+                .json({
+                  error: "Couldn't find user"
+                });
+            } else {
+              user.balance = user.balance + quizResponse.score * 50;
+              user.save(function (err) {
+                if (err) {
+                  res.status(500)
+                    .json({
+                      error: "Couldn't update user balance"
+                    });
+                } else {
+                  console.log("balance updated", user.balance);
+                }
+              })
+            }
+          })
       }
+      //update archived if present in req body
       if (req.body.archived !== undefined) {
         quizResponse.archived = req.body.archived;
       }

@@ -61,7 +61,7 @@ router.post('/login', function (req, res) {
             });
         } else {
           // Issue token
-          returnToken(email, user._id, user.admin, res);
+          returnToken(email, user._id, user.admin, user.balance, res);
         }
       });
     }
@@ -72,7 +72,8 @@ router.get('/checkToken', withAuth, function (req, res) {
   res.sendStatus(200);
 })
 
-const returnToken = (email, userId, admin, res) => {
+//return token and user info
+const returnToken = (email, userId, admin, balance, res) => {
   const payload = {
     email: email,
     id: userId
@@ -84,8 +85,26 @@ const returnToken = (email, userId, admin, res) => {
     token: token,
     userId: userId,
     expiresIn: 3600,
-    admin: admin
-  })
+    admin: admin,
+    balance: balance
+  });
 }
+
+router.get('/:id', withAuth, function (req, res) {
+  User.findById(req.params.id, function (err, user) {
+    if (err) {
+      res.status(500)
+        .json({
+          error: 'Couldn\'t find user'
+        });
+    } else {
+      res.json({
+        userId: user._id,
+        admin: user.admin,
+        balance: user.balance
+      });
+    }
+  });
+});
 
 module.exports = router;
