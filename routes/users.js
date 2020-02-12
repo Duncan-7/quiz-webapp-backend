@@ -27,7 +27,7 @@ router.post('/signup', function (req, res, next) {
           error: "Problem creating user. Please try again."
         })
     } else {
-      returnToken(email, user._id, user.admin, res);
+      returnToken(email, user._id, user.admin, user.balance, res);
     }
   });
 });
