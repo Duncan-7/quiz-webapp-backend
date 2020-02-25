@@ -6,15 +6,15 @@ const QuizTemplate = require('../models/quizTemplate');
 const quizResponseController = require('../controllers/quizResponseController');
 
 // get all quizzes for a user
-router.get('/', quizResponseController.index)
+router.get('/', withAuth, quizResponseController.index)
 
 //create new quiz template
-router.post('/', quizResponseController.create);
+router.post('/', withAuth, quizResponseController.create);
 
 //update quiz template
-router.put('/:id', quizResponseController.update);
+router.put('/:id', withAuth, quizResponseController.update);
 
 //delete quiz template
-router.delete('/:id', quizResponseController.destroy);
+router.delete('/:id', withAuth, quizResponseController.destroy);
 
 module.exports = router;

@@ -27,7 +27,8 @@ exports.createPlaythrough = function (req, res) {
             _id: user._id,
             email: user.email,
             password: user.password,
-            balance: (user.balance > 50 ? user.balance - 50 : 0)
+            balance: (user.balance > 50 ? user.balance - 50 : 0),
+            admin: user.admin
           });
           User.findByIdAndUpdate(user._id, updatedUser, {}, function (err) {
             if (err) {
@@ -204,7 +205,8 @@ exports.cashOut = function (req, res, next) {
                 _id: user._id,
                 email: user.email,
                 password: user.password,
-                balance: user.balance + updatedPlaythrough.winnings
+                balance: user.balance + updatedPlaythrough.winnings,
+                admin: user.admin
               });
               User.findByIdAndUpdate(user._id, updatedUser, {}, function (err) {
                 if (err) {

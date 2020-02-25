@@ -17,7 +17,8 @@ router.post('/signup', function (req, res, next) {
   const user = new User({
     email: email,
     password: password,
-    balance: balance
+    balance: balance,
+    admin: false
   });
   user.save(function (err) {
     if (err) {
