@@ -6,7 +6,7 @@ const QuizTemplate = require('../models/quizTemplate');
 const quizResponseController = require('../controllers/quizResponseController');
 
 // get all quizzes for a user
-router.get('/', withAuth, quizResponseController.index)
+router.get('/', quizResponseController.index)
 
 //create new quiz template
 router.post('/', withAuth, quizResponseController.create);

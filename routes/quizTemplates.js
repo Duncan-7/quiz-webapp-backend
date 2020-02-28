@@ -6,7 +6,7 @@ const QuizTemplate = require('../models/quizTemplate');
 const quizTemplateController = require('../controllers/quizTemplateController');
 
 // get all quizzes
-router.get('/', withAuth, quizTemplateController.index)
+router.get('/', quizTemplateController.index)
 
 //get all live quizzes
 router.get('/live', withAuth, quizTemplateController.liveIndex);
