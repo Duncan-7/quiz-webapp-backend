@@ -9,15 +9,15 @@ const quizTemplateController = require('../controllers/quizTemplateController');
 router.get('/', quizTemplateController.index)
 
 //get all live quizzes
-router.get('/live', withAuth, quizTemplateController.liveIndex);
+router.get('/live', quizTemplateController.liveIndex);
 
 //create new quiz template
-router.post('/', withAuth, checkAdmin, quizTemplateController.create);
+router.post('/', checkAdmin, quizTemplateController.create);
 
 //update quiz template
-router.put('/:id', withAuth, checkAdmin, quizTemplateController.update);
+router.put('/:id', checkAdmin, quizTemplateController.update);
 
 //delete quiz template
-router.delete('/:id', withAuth, checkAdmin, quizTemplateController.destroy);
+router.delete('/:id', checkAdmin, quizTemplateController.destroy);
 
 module.exports = router;

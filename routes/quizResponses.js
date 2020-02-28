@@ -9,12 +9,12 @@ const quizResponseController = require('../controllers/quizResponseController');
 router.get('/', quizResponseController.index)
 
 //create new quiz template
-router.post('/', withAuth, quizResponseController.create);
+router.post('/', quizResponseController.create);
 
 //update quiz template
-router.put('/:id', withAuth, quizResponseController.update);
+router.put('/:id', quizResponseController.update);
 
 //delete quiz template
-router.delete('/:id', withAuth, quizResponseController.destroy);
+router.delete('/:id', quizResponseController.destroy);
 
 module.exports = router;
